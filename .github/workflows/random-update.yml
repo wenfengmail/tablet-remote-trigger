@@ -1,0 +1,30 @@
+name: Random Trigger Update
+
+on:
+  repository_dispatch:
+    types: [random-update]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  random-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Write random content to trigger.txt
+        run: |
+          NEW_VALUE="$(date +%Y%m%d%H%M%S)-$RANDOM$RANDOM"
+          echo "$NEW_VALUE" > trigger.txt
+          echo "new value: $NEW_VALUE"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add trigger.txt
+          git diff --cached --quiet || git commit -m "chore: random trigger update $(date +%s)"
+          git push
